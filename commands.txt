@@ -1,0 +1,44 @@
+ffmpeg -f avfoundation -list_devices true  -i ""   
+
+ffmpeg -i bullfinch.mp4 -c:v libx264 -c:a aac output.mp4
+
+ffprobe <filename> -show_format -show_streams -print_format json
+
+[only show video format]
+ffprobe bullfinch.mp4 -show_streams -print_format json -select_streams v
+
+[player]
+ffplay -v error bullfinch.mp4 -x 600 -y 600
+
+[vidoe borderless]
+ffplay -v error bullfinch.mp4 -x 600 -y 600 -noborder
+
+[do not use fill with black]
+ffplay -v error bullfinch.mp4 -y 600 -noborder
+
+[add positiom]
+ffplay -v error bullfinch.mp4 -x 600 -y 600 -noborder -top 0 -left 0
+
+[fullscree]
+ffplay -v error bullfinch.mp4 -x 600 -y 600 -noborder -top 0 -left 0 -fs
+
+[no avfoundation]
+ffplay -v error bullfinch.mp4 -x 600 -y 600 -noborder -top 0 -left 0 -an
+
+[in a loop]
+ffplay -v error bullfinch.mp4 -x 600 -y 600 -noborder -top 0 -left 0 -loop 0
+
+[filter graph]
+ffmpeg -v error -y -i bullfinch.mp4 -vf "split[bg][ol];[bg]scale=width=1920:height=1080,format=gray[bg_out];[ol]scale=-1:480,hflip[ol_out];[bg_out][ol_out]overlay=x=W-w:y=(H-h)/2" ol.mp4
+ffplay -v error ol.mp4
+
+encode low CRF h264 ( this is about 350kb/s)
+ffmpeg_enc_low % ffmpeg -v error -y -i bullfinch.mp4 -vcodec libx264 -crf 1 transcoded.mp4
+
+encode h264 but specify the bitrate 
+ffmpeg -v error -y -i bullfinch.mp4 -vcodec libx264 -b:v 0.1M  transcoded.mp4
+ffmpeg -v error -y -i bullfinch.mp4 -vcodec libx264 -b:v 1M  transcoded.mp4
+
+
+[PROBE codec]
+ffprobe output.mp4 -select_streams v -show_entries stream=codec_name -print_format default=noprint_wrappers=1
